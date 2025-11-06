@@ -34,7 +34,8 @@ long get_file_size(FILE* file);
 ///
 /// \param path Path to the file to read.
 /// \param size Pointer to size variable to store the number of bytes read.
-/// \return Pointer to allocated buffer containing file contents, or NULL on error.
+/// \return Pointer to allocated buffer containing file contents, or NULL on
+/// error.
 unsigned char* read_file_to_buffer(const char* path, size_t* size);
 
 /// \brief Prints a buffer in hexadecimal format.

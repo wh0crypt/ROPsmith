@@ -1,4 +1,15 @@
-// rop/finder.c
+//===----------------------------------------------------------------------===//
+//
+// Part of the ROPsmith Project.
+// See LICENSE for license information.
+//
+//===----------------------------------------------------------------------===//
+///
+/// \file rop/finder.c
+/// Functions for scanning ELF binaries and detecting ROP gadgets.
+///
+//===----------------------------------------------------------------------===//
+
 #define _POSIX_C_SOURCE 200809L
 #include "finder.h"
 
@@ -158,8 +169,9 @@ int scan_elf_text_for_rets(const char* path, int context_bytes) {
     for (size_t i = 0; i < text_size; ++i) {
         if (text_buf[i] == RET_OPCODE) {
             ret_count++;
-            size_t ctx_start = (i >= (size_t)context_bytes) ? i - context_bytes : 0;
-            size_t ctx_end   = i + 1; // include ret
+            size_t ctx_start =
+                (i >= (size_t)context_bytes) ? i - context_bytes : 0;
+            size_t ctx_end = i + 1; // include ret
             printf("GADGET (ret) at file_offset=0x%lx  vaddr=0x%lx\n",
                    (unsigned long)(text_offset + i),
                    (unsigned long)(text_addr + i));

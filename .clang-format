@@ -8,7 +8,7 @@ AllowShortLoopsOnASingleLine: false
 AlignConsecutiveAssignments: true
 AlignConsecutiveDeclarations: true
 AlignOperands: true
-ColumnLimit: 100
+ColumnLimit: 80
 DerivePointerAlignment: false
 PointerAlignment: Left
 SpaceBeforeParens: ControlStatements

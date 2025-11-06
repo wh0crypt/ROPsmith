@@ -29,6 +29,7 @@ static void print_usage(const char* progname) {
 }
 
 /// \brief Main entry point for the ROPsmith CLI tool.
+///
 /// \param argc Argument count.
 /// \param argv Argument vector.
 /// \return Exit code.

@@ -14,6 +14,8 @@
 #ifndef ROPSMITH_H
 #define ROPSMITH_H
 
+#include "../../rop/finder.h"
+
 #include <stddef.h>
 
 #ifdef __cplusplus
@@ -28,6 +30,16 @@ extern "C" {
 /// This function prints the banner, version, or other relevant info to
 /// the standard output. Can be called at the start of main().
 void ropsmith_print_info(void);
+
+/// \brief Scans the specified ELF file for ROP gadgets.
+///
+/// This is a high-level wrapper around the internal scanning functions.
+///
+/// \param path Path to the ELF binary to scan.
+/// \return Returns the number of 'ret' instructions found, or -1 on error.
+static inline int ropsmith_scan_file(const char* path) {
+    return scan_elf_text_for_rets(path, 16);
+}
 
 #ifdef __cplusplus
 }

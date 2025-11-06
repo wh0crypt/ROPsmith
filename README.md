@@ -37,11 +37,11 @@ git clone https://github.com/wh0crypt/ROPsmith.git
 cd ROPsmith
 ```
 
-2. Build the project using CMake:
+2. Build the project using Meson and Ninja:
 
 ```bash
-mkdir build && cd build
-cmake .. && make
+meson setup build
+ninja -C build
 ```
 
 ## Usage

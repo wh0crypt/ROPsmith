@@ -2,7 +2,7 @@
 
 First off, thank you for considering contributing to **ROPsmith**! Your input helps improve and refine this project for everyone in the security and reverse engineering community.
 
-## 🧩 How to Contribute
+## How to Contribute
 
 ### 1. Fork & Clone
 
@@ -40,6 +40,12 @@ fix: corrected buffer size validation in parser
 refactor: improved disassembly performance
 ```
 
+Before committing, make sure all the files are formatted correctly using `clang-format`:
+
+```bash
+pre-commit run --all-files
+```
+
 ### 6. Pull Request (PR)
 
 * Open a PR to the `main` branch.
@@ -48,14 +54,31 @@ refactor: improved disassembly performance
 
 Once reviewed and approved, your PR will be merged.
 
+## Adding New Features
+
+When developing new features, please ensure they align with the overall goals of ROPsmith: modularity, educational value, and practical utility for ROP gadget discovery and chain generation. Document any new features thoroughly in the README and relevant code comments. Also, add the source files to the `src/rop/meson.build` file to ensure they are compiled with the project.
+
+## Adding New Tests
+
+When writing new tests, please add the source file to the `tests/meson.build` file to ensure it gets compiled and run with the test suite. Also, in case you need to create a new test sample binary, write the automation script to build it and add the script to `scripts/setup_samples.sh`.
+
+In case the sample binary requires special compilation flags or a specific environment, please document that in the script comments. Also, ensure that the test binaries are small and focused on the specific feature being tested to keep the test suite efficient.
+
+Run the tests using:
+
+```bash
+ninja -C build test
+```
+
 ## Dev Requirements
 
-* **CMake** >= 3.10
+* **Meson** >= 1.9.1
+* **Ninja** >= 1.13.1
 * **A C/C++ compiler** (GCC, Clang, MSVC)
 * **Git** for version control
 * **Familiarity** with *binary exploitation* and *ROP* concepts is a plus
 
-## 🔒 Security Contributions
+## Security Contributions
 
 If you find a **vulnerability** in ROPsmith or in the way it handles binary data:
 
@@ -67,7 +90,7 @@ We take responsible disclosure seriously and will respond as soon as possible.
 
 ---
 
-### 📧 Contact
+### Contact
 
 For contribution-related questions or vulnerability reports:
 

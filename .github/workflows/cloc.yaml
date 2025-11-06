@@ -1,0 +1,40 @@
+name: Update Lines of Code Badge
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  count-loc:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install dependencies
+        run: sudo apt-get install -y cloc jq
+
+      - name: Count code lines (excluding comments)
+        id: count
+        run: |
+          cloc --json --quiet --exclude-dir=.git,.github,test,scripts --include-ext=c,cc,cpp,h,hpp . > cloc.json
+          lines=$(jq '.SUM.code' cloc.json)
+          echo "Total lines: $lines"
+          echo "lines=$lines" >> $GITHUB_ENV
+
+      - name: Update README badge
+        run: |
+          badge="![Lines of code](https://img.shields.io/badge/Lines_of_code-${{ env.lines }}-brightgreen)"
+          sed -i '/<!-- LOC BADGE START -->/,/<!-- LOC BADGE END -->/c\<!-- LOC BADGE START -->\n'"$badge"'\n<!-- LOC BADGE END -->' README.md
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git commit -m "doc: update lines of code badge"
+          git push

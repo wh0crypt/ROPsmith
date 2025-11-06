@@ -13,6 +13,10 @@
 </pre>
 </div>
 
+<!-- LOC BADGE START -->
+![Lines of code](https://img.shields.io/badge/Lines_of_code-0-lightgrey)
+<!-- LOC BADGE END -->
+
 ## What is ROPsmith?
 
 ROPsmith is a lightweight toolkit focused on discovering ROP gadgets inside binaries (ELF/PE), presenting usable gadgets, and producing starter templates for ROP chains. The goal is educational and practical: help red-teamers, CTF players, and security researchers understand low-level exploit construction while keeping the tool modular and auditable.

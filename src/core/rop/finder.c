@@ -5,16 +5,17 @@
 //
 //===----------------------------------------------------------------------===//
 ///
-/// \file rop/finder.c
-/// Functions for scanning ELF binaries and detecting ROP gadgets.
+/// \file core/rop/finder.c
+/// Implementation of functions for scanning ELF binaries and detecting ROP
+/// gadgets.
 ///
 //===----------------------------------------------------------------------===//
 
 #define _POSIX_C_SOURCE 200809L
 #include "finder.h"
 
-#include "../include/ropsmith/macros.h"
-#include "../utils/utils.h"
+#include "../../macros.h"
+#include "../../utils/io.h"
 
 #include <elf.h>
 #include <stdint.h>
@@ -22,8 +23,13 @@
 #include <stdlib.h>
 #include <string.h>
 
-int scan_elf_text_for_rets(const char* path, int context_bytes) {
-    FILE* f = fopen(path, "rb");
+#ifdef __cplusplus
+using namespace utils::io;
+extern "C" {
+#endif
+
+int find_ret_instructions(const char *path, int context_bytes) {
+    FILE *f = fopen(path, "rb");
     if (!f) {
         perror("fopen");
         return -1;
@@ -70,7 +76,7 @@ int scan_elf_text_for_rets(const char* path, int context_bytes) {
         return -1;
     }
 
-    Elf64_Shdr* sh_table = calloc(ehdr.e_shnum, sizeof(Elf64_Shdr));
+    Elf64_Shdr *sh_table = calloc(ehdr.e_shnum, sizeof(Elf64_Shdr));
     if (!sh_table) {
         perror("malloc sh_table");
         fclose(f);
@@ -86,7 +92,7 @@ int scan_elf_text_for_rets(const char* path, int context_bytes) {
 
     // Read section header string table to get names
     Elf64_Shdr shstr    = sh_table[ehdr.e_shstrndx];
-    char*      shstrtab = malloc(shstr.sh_size);
+    char      *shstrtab = malloc(shstr.sh_size);
     if (!shstrtab) {
         perror("malloc shstrtab");
         free(sh_table);
@@ -111,9 +117,9 @@ int scan_elf_text_for_rets(const char* path, int context_bytes) {
     }
 
     // Find .text section
-    Elf64_Shdr* text_sh = NULL;
+    Elf64_Shdr *text_sh = NULL;
     for (int i = 0; i < ehdr.e_shnum; ++i) {
-        const char* name = shstrtab + sh_table[i].sh_name;
+        const char *name = shstrtab + sh_table[i].sh_name;
         if (strcmp(name, ".text") == 0) {
             text_sh = &sh_table[i];
             break;
@@ -141,7 +147,7 @@ int scan_elf_text_for_rets(const char* path, int context_bytes) {
         return -1;
     }
 
-    unsigned char* text_buf = malloc(text_size);
+    unsigned char *text_buf = malloc(text_size);
     if (!text_buf) {
         perror("malloc text_buf");
         free(shstrtab);
@@ -187,3 +193,7 @@ int scan_elf_text_for_rets(const char* path, int context_bytes) {
     fclose(f);
     return ret_count;
 }
+
+#ifdef __cplusplus
+} // extern "C"
+#endif // __cplusplus

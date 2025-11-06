@@ -5,18 +5,22 @@
 //
 //===----------------------------------------------------------------------===//
 ///
-/// \file utils/utils.c
-/// This file contains implementations and helper functions for the ROPsmith
-/// project, including ELF scanning, ROP gadget detection, and utility
-/// functions used across the project.
+/// \file utils/io.cpp
+/// Implementation of utility functions for file I/O, printing, and general
+/// helpers. These functions are used internally by ROPsmith scanning routines.
 ///
 //===----------------------------------------------------------------------===//
 
 #define BYTES_PER_LINE 16
 
-#include "utils.h"
+#include "io.h"
 
-long get_file_size(FILE* file) {
+#ifdef __cplusplus
+namespace utils::io {
+extern "C" {
+#endif // __cplusplus
+
+long get_file_size(FILE *file) {
     long filesize = -1;
     fseek(file, 0, SEEK_END);
     filesize = ftell(file);
@@ -24,7 +28,7 @@ long get_file_size(FILE* file) {
     return filesize;
 }
 
-void print_bytes_hex(const unsigned char* buf, size_t start, size_t end) {
+void print_bytes_hex(const unsigned char *buf, size_t start, size_t end) {
     for (size_t i = start; i < end; ++i) {
         printf("%02X ", buf[i]);
         if ((i + 1) % BYTES_PER_LINE == 0) {
@@ -32,3 +36,8 @@ void print_bytes_hex(const unsigned char* buf, size_t start, size_t end) {
         }
     }
 }
+
+#ifdef __cplusplus
+} // extern "C"
+} // namespace utils::io
+#endif // __cplusplus

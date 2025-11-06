@@ -1,31 +1,39 @@
-project('ROPsmith', 'c',
+project('ROPsmith',
+  [
+    'c', 'cpp'
+  ],
   version : '0.1',
-  default_options : ['warning_level=3', 'c_std=c11']
+  default_options : ['cpp_std=c++23', 'c_std=c11', 'warning_level=3', 'werror=false']
 )
 
-inc = include_directories('src', 'src/rop', 'src/include')
+# --- Common directories ---
+core_dir = 'src/core'
+utils_dir = 'src/utils'
 
 # --- Library sources ---
-subdir('src/rop')
-subdir('src/ropsmith')
-subdir('src/utils')
-lib_ropsmith_sources = rop_sources + ropsmith_sources + utils_sources
+subdir(core_dir)
+subdir(utils_dir)
+sources = core_sources + utils_sources
+incdir = [core_incdir, utils_incdir]
 
 # --- Library ---
 lib_ropsmith = static_library(
   'ropsmith',
-  lib_ropsmith_sources,
-  include_directories : inc
+  sources,
+  include_directories : incdir
 )
 
 # --- Main executable ---
 exe_ropsmith = executable(
   'ropsmith',
-  'src/main.c',
-  include_directories : inc,
+  [
+    'src/main.cpp',
+    'src/program.cpp'
+  ],
+  include_directories : incdir,
   link_with : lib_ropsmith,
   install : true
 )
 
 # --- Subdirectory for tests ---
-subdir('tests')
+subdir('test')

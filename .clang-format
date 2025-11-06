@@ -10,7 +10,7 @@ AlignConsecutiveDeclarations: true
 AlignOperands: true
 ColumnLimit: 80
 DerivePointerAlignment: false
-PointerAlignment: Left
+PointerAlignment: Right
 SpaceBeforeParens: ControlStatements
 AlwaysBreakAfterReturnType: None
 BinPackArguments: false
@@ -26,3 +26,4 @@ SpaceBeforeAssignmentOperators: true
 NamespaceIndentation: None
 IndentExternBlock: AfterExternBlock
 UseCRLF: false
+InsertNewlineAtEOF: true

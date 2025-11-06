@@ -5,20 +5,19 @@
 //
 //===----------------------------------------------------------------------===//
 ///
-/// \file rop/finder.h
+/// \file core/rop/finder.h
 /// Functions for scanning ELF binaries and detecting ROP gadgets.
 ///
 //===----------------------------------------------------------------------===//
 
-#ifndef ROP_FINDER_H
-#define ROP_FINDER_H
-
-#include <stddef.h>
+#ifndef CORE_ROP_FINDER_H
+#define CORE_ROP_FINDER_H
 
 #ifdef __cplusplus
 extern "C" {
-#endif
+#endif // __cplusplus
 
+#include <stddef.h>
 /// \brief Scans the .text section of an ELF binary for 'ret' instructions.
 ///
 /// This function opens the ELF file specified by \p path, parses the header
@@ -29,10 +28,10 @@ extern "C" {
 /// \param path Path to the ELF binary to scan.
 /// \param context Number of surrounding bytes to include per gadget.
 /// \return Returns the number of 'ret' instructions found, or -1 on error.
-int scan_elf_text_for_rets(const char* path, int context_bytes);
+int find_ret_instructions(const char *path, int context_bytes);
 
 #ifdef __cplusplus
 }
-#endif
+#endif // __cplusplus
 
-#endif // ROP_FINDER_H
+#endif // CORE_ROP_FINDER_H

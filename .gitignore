@@ -1,5 +1,6 @@
 # Build
 /build/
+/builddir/
 bin/
 lib/
 CMakeFiles/
@@ -35,4 +36,4 @@ Thumbs.db
 *.gcda
 *.gcno
 coverage/
-tests/test_samples/
+test/test_samples/

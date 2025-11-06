@@ -5,44 +5,36 @@
 //
 //===----------------------------------------------------------------------===//
 ///
-/// \file ropsmith/ropsmith.h
+/// \file core/ropsmith.h
 /// Main public header for ROPsmith. Provides high-level functions and
 /// utility functions for printing info and handling user interaction.
 ///
 //===----------------------------------------------------------------------===//
 
-#ifndef ROPSMITH_H
-#define ROPSMITH_H
+#ifndef CORE_ROPSMITH_H
+#define CORE_ROPSMITH_H
 
-#include "../../rop/finder.h"
+#include <string>
 
-#include <stddef.h>
-
-#ifdef __cplusplus
-extern "C" {
-#endif
+namespace ropsmith {
 
 /// Project-wide version constant
-#define ROPSMITH_VERSION "0.1"
+const std::string VERSION = "0.1";
 
-/// \brief Prints basic information about the ROPsmith scan.
+/// \brief Prints basic information about the tool.
 ///
 /// This function prints the banner, version, or other relevant info to
 /// the standard output. Can be called at the start of main().
-void ropsmith_print_info(void);
+void print_info(void);
 
 /// \brief Scans the specified ELF file for ROP gadgets.
 ///
 /// This is a high-level wrapper around the internal scanning functions.
-///
 /// \param path Path to the ELF binary to scan.
+/// \param context_bytes Number of context bytes to include around each gadget.
 /// \return Returns the number of 'ret' instructions found, or -1 on error.
-static inline int ropsmith_scan_file(const char* path) {
-    return scan_elf_text_for_rets(path, 16);
-}
+int scan_file(const char *path, int context_bytes);
 
-#ifdef __cplusplus
-}
-#endif
+} // namespace ropsmith
 
-#endif // ROPSMITH_H
+#endif // CORE_ROPSMITH_H

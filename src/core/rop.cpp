@@ -5,14 +5,20 @@
 //
 //===----------------------------------------------------------------------===//
 ///
-/// \file ropsmith/macros.h
-/// Macros and constants for ROP gadget detection.
+/// \file core/rop.cpp
+/// Implementations for scanning ELF binaries and detecting ROP
+/// gadgets.
 ///
 //===----------------------------------------------------------------------===//
 
-#ifndef ROPSMITH_MACROS_H
-#define ROPSMITH_MACROS_H
+#include "rop.h"
 
-#define RET_OPCODE 0xC3
+#include "rop/finder.h"
 
-#endif // ROPSMITH_MACROS_H
+namespace rop {
+
+int get_file_ret_count(const char *path, int context_bytes) {
+    return find_ret_instructions(path, context_bytes);
+}
+
+} // namespace rop

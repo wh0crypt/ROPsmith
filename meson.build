@@ -2,8 +2,13 @@ project('ROPsmith',
   [
     'c', 'cpp'
   ],
-  version : '0.1',
-  default_options : ['cpp_std=c++23', 'c_std=c11', 'warning_level=3', 'werror=false']
+  version: '0.1',
+  default_options: [
+    'cpp_std=c++23',
+    'c_std=c11',
+    'warning_level=3',
+    'werror=false'
+  ]
 )
 
 # --- Common directories ---
@@ -25,7 +30,7 @@ lib_ropsmith = static_library(
 )
 
 # --- Main executable ---
-exe_ropsmith = executable(
+executable(
   'ropsmith',
   [
     'src/main.cpp',
@@ -39,4 +44,6 @@ exe_ropsmith = executable(
 # --- Subdirectory for tests ---
 if get_option('enable_tests')
   subdir('test')
+else
+  message('Tests are disabled. To enable, run Meson with -Denable_tests=true')
 endif

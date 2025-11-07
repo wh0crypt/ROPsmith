@@ -1,8 +1,6 @@
 # --- Common directories ---
-core_dir = '../src/core'
-utils_dir = '../src/utils'
-test_samples_dir = 'test_samples'
-scripts_dir = '../scripts'
+test_samples_dir = join_paths(meson.current_source_dir(), 'test_samples')
+scripts_dir = join_paths(meson.current_source_dir(), '../scripts')
 
 # --- Generate test samples ---
 bash = find_program('bash', required: true)

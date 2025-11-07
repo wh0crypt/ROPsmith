@@ -13,9 +13,7 @@
 </pre>
 </div>
 
-<!-- LOC BADGE START -->
-![Lines of code](https://img.shields.io/badge/Lines_of_code-362-brightgreen)
-<!-- LOC BADGE END -->
+![Lines of code](https://img.shields.io/badge/lines_of_code-363-brightgreen)
 [![build-dev](https://github.com/wh0crypt/ROPsmith/actions/workflows/build.yml/badge.svg)](https://github.com/wh0crypt/ROPsmith/actions/workflows/build.yml)
 [![tests](https://github.com/wh0crypt/ROPsmith/actions/workflows/tests.yml/badge.svg)](https://github.com/wh0crypt/ROPsmith/actions/workflows/tests.yml)
 [![build-release](https://github.com/wh0crypt/ROPsmith/actions/workflows/release.yml/badge.svg)](https://github.com/wh0crypt/ROPsmith/actions/workflows/release.yml)

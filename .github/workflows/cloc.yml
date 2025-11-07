@@ -1,9 +1,16 @@
-name: Update Lines of Code Badge
+name: cloc
 
 on:
   push:
     branches:
       - main
+    paths:
+      - 'src/**'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'src/**'
   workflow_dispatch:
 
 jobs:
@@ -29,18 +36,13 @@ jobs:
 
       - name: Update README badge
         run: |
-          badge="![Lines of code](https://img.shields.io/badge/Lines_of_code-${{ env.lines }}-brightgreen)"
-          sed -i '/<!-- LOC BADGE START -->/,/<!-- LOC BADGE END -->/c\<!-- LOC BADGE START -->\n'"$badge"'\n<!-- LOC BADGE END -->' README.md
+          badge="![Lines of code](https://img.shields.io/badge/lines_of_code-${{ env.lines }}-brightgreen)"
+          sed -i 's|!\[Lines of code\](https://img.shields.io[^)]*)|'"$badge"'|' README.md
 
       - name: Commit and push changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          if [[ -n "$(git status --porcelain)" ]]; then
-            echo "Changes detected, committing..."
-            git add README.md
-            git commit -m "doc: update lines of code badge"
-            git push
-          else
-            echo "No changes detected, skipping commit."
-          fi
+          git add README.md
+          git commit -m "doc: update lines of code badge"
+          git push

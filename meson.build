@@ -42,8 +42,8 @@ executable(
 )
 
 # --- Subdirectory for tests ---
-if get_option('enable_tests')
+if get_option('enable-tests')
   subdir('test')
 else
-  message('Tests are disabled. To enable, run Meson with -Denable_tests=true')
+  message('Tests are disabled. To enable, run Meson with -Denable-tests=true')
 endif

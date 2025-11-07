@@ -38,7 +38,7 @@ jobs:
           fi
 
       - name: Configure build
-        run: meson setup builddir --buildtype=release -Denable_tests=true
+        run: meson setup builddir --buildtype=release -Denable-tests=true
 
       - name: Compile project
         run: meson compile -C builddir

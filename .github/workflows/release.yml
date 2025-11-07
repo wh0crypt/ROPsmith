@@ -47,7 +47,7 @@ jobs:
           sudo apt install -y gcc g++ pkg-config || true
 
       - name: Configure build
-        run: meson setup builddir --buildtype=release -Denable_tests=false
+        run: meson setup builddir --buildtype=release -Denable-tests=false
 
       - name: Compile project
         run: meson compile -C builddir

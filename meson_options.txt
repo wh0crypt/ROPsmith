@@ -1,1 +1,1 @@
-option('enable_tests', type: 'boolean', value: false, description: 'Enable Criterion tests')
+option('enable-tests', type: 'boolean', value: false, description: 'Enable Criterion tests')

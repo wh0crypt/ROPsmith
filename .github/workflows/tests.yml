@@ -1,10 +1,30 @@
-name: Tests
+name: tests
 
 on:
   push:
     branches: [ main ]
+    paths:
+      - '**.c'
+      - '**.cc'
+      - '**.cpp'
+      - '**.h'
+      - '**.hpp'
+      - 'meson.build'
+      - 'src/**'
+      - 'include/**'
+      - 'tests/**'
   pull_request:
     branches: [ main ]
+    paths:
+      - '**.c'
+      - '**.cc'
+      - '**.cpp'
+      - '**.h'
+      - '**.hpp'
+      - 'meson.build'
+      - 'src/**'
+      - 'include/**'
+      - 'tests/**'
   workflow_dispatch:
 
 jobs:

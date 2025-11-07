@@ -4,7 +4,7 @@
 
 set -euo pipefail
 
-OUTDIR="${1:-tests/test_samples}"
+OUTDIR="${1:-test/test_samples}"
 mkdir -p "$OUTDIR"
 
 # Check dependencies

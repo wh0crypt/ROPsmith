@@ -20,6 +20,13 @@ jobs:
           sudo apt update || true
           sudo apt install -y gcc g++ pkg-config meson ninja-build libcriterion-dev build-essential || true
 
+      - name: Create sample files
+        run: |
+          if [ -f scripts/setup_samples.sh ]; then
+            chmod +x scripts/setup_samples.sh
+            ./scripts/setup_samples.sh
+          fi
+
       - name: Configure build
         run: meson setup builddir --buildtype=release -Denable_tests=true
 
@@ -27,4 +34,4 @@ jobs:
         run: meson compile -C builddir
 
       - name: Run tests
-        run: ninja -C builddir test
+        run: ninja -C builddir test || (cat builddir/meson-logs/testlog.txt && exit 1)

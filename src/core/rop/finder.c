@@ -14,10 +14,15 @@
 #define _POSIX_C_SOURCE 200809L
 #include "finder.h"
 
-#include "../../macros.h"
-#include "../../utils/io.h"
+#include "macros.h"
+#include "io.h"
 
+#if defined(__APPLE__) || defined(_WIN32)
+#include "elf.h"
+#else
 #include <elf.h>
+#endif // ELF headers
+
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>

@@ -9,12 +9,13 @@ project('ROPsmith',
 # --- Common directories ---
 core_dir = 'src/core'
 utils_dir = 'src/utils'
+include_dir = 'src/include'
 
 # --- Library sources ---
 subdir(core_dir)
 subdir(utils_dir)
 sources = core_sources + utils_sources
-incdir = [core_incdir, utils_incdir]
+incdir = [core_incdir, utils_incdir, include_directories(include_dir, './src')]
 
 # --- Library ---
 lib_ropsmith = static_library(

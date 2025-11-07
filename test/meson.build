@@ -4,8 +4,6 @@ utils_dir = '../src/utils'
 test_samples_dir = 'test_samples'
 scripts_dir = '../scripts'
 
-incdir = include_directories(core_dir, utils_dir)
-
 # --- Generate test samples ---
 bash = find_program('bash', required: true)
 setup_script = find_program(join_paths(scripts_dir, 'setup_samples.sh'), required: true)

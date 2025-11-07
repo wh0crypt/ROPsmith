@@ -30,6 +30,13 @@ git checkout -b feature/your-feature-name
 * Add new tests for new functionalities where possible.
 * Verify that your code does **not break existing gadget detection logic**.
 
+To run tests, use:
+
+```bash
+meson setup builddir --wipe --buildtype=debug --Denable-tests=true
+ninja -C builddir test
+```
+
 ### 5. Commit Guidelines
 
 Use clear, concise commit messages:
@@ -40,7 +47,17 @@ fix: corrected buffer size validation in parser
 refactor: improved disassembly performance
 ```
 
-Before committing, make sure all the files are formatted correctly using `clang-format`:
+Before committing, make sure all the files are formatted correctly using `clang-format`.
+
+> **Note:** We use `pre-commit` hooks to enforce code style. Please ensure you have it installed and configured.
+
+There is a pre-commit configuration file included in the repository that does exactly that. To set up pre-commit hooks, run:
+
+```bash
+pre-commit install
+```
+
+To manually run the pre-commit checks on all files, use:
 
 ```bash
 pre-commit run --all-files

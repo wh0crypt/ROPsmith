@@ -15,8 +15,8 @@
 
 ![Lines of code](https://img.shields.io/badge/lines_of_code-363-brightgreen)
 [![build-dev](https://github.com/wh0crypt/ROPsmith/actions/workflows/build.yml/badge.svg)](https://github.com/wh0crypt/ROPsmith/actions/workflows/build.yml)
-[![tests](https://github.com/wh0crypt/ROPsmith/actions/workflows/tests.yml/badge.svg)](https://github.com/wh0crypt/ROPsmith/actions/workflows/tests.yml)
 [![build-release](https://github.com/wh0crypt/ROPsmith/actions/workflows/release.yml/badge.svg)](https://github.com/wh0crypt/ROPsmith/actions/workflows/release.yml)
+[![tests](https://github.com/wh0crypt/ROPsmith/actions/workflows/tests.yml/badge.svg)](https://github.com/wh0crypt/ROPsmith/actions/workflows/tests.yml)
 ![GitHub release](https://img.shields.io/github/v/release/wh0crypt/ROPsmith)
 ![License](https://img.shields.io/github/license/wh0crypt/ROPsmith)
 ![Platforms](https://img.shields.io/badge/platform-linux%20%7C%20macos%20%7C%20windows-blue)

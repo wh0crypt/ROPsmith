@@ -170,11 +170,10 @@ int find_ret_instructions(const char *path, int context_bytes) {
         return -1;
     }
 
-    printf(
-        ".text offset=0x%lx size=0x%lx vaddr=0x%lx\n\n",
-        text_offset,
-        text_size,
-        text_addr);
+    printf(".text offset=0x%lx size=0x%lx vaddr=0x%lx\n\n",
+           text_offset,
+           text_size,
+           text_addr);
 
     int ret_count = 0;
     for (size_t i = 0; i < text_size; ++i) {

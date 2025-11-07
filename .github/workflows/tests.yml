@@ -1,0 +1,30 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Install build dependencies
+        run: |
+          sudo apt update || true
+          sudo apt install -y gcc g++ pkg-config meson ninja-build libcriterion-dev || true
+
+      - name: Configure build
+        run: meson setup builddir --buildtype=release -Denable_tests=true
+
+      - name: Compile project
+        run: meson compile -C builddir
+
+      - name: Run tests
+        run: ninja -C builddir test

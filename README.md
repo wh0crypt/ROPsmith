@@ -16,6 +16,12 @@
 <!-- LOC BADGE START -->
 ![Lines of code](https://img.shields.io/badge/Lines_of_code-363-brightgreen)
 <!-- LOC BADGE END -->
+![Build](https://github.com/wh0crypt/ROPsmith/actions/workflows/build.yml/badge.svg)
+![Tests](https://img.shields.io/badge/tests-passing-brightgreen)
+![GitHub release](https://img.shields.io/github/v/release/wh0crypt/ROPsmith)
+![License](https://img.shields.io/github/license/wh0crypt/ROPsmith)
+![Platforms](https://img.shields.io/badge/platform-linux%20%7C%20macos%20%7C%20windows-blue)
+![Status](https://img.shields.io/badge/status-active-success)
 
 ## What is ROPsmith?
 

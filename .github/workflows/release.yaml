@@ -1,0 +1,108 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        include:
+          - os: ubuntu-latest
+            artifact_name: ropsmith-linux-x64
+            ext: tar.gz
+          - os: macos-latest
+            artifact_name: ropsmith-macos-x64
+            ext: tar.gz
+          - os: windows-latest
+            artifact_name: ropsmith-windows-x64
+            ext: zip
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt update || true
+          sudo apt install -y meson ninja-build gcc g++ pkg-config gpg || true
+
+      - name: Install dependencies (macOS)
+        if: runner.os == 'macOS'
+        run: |
+          brew install meson ninja gnupg
+
+      - name: Install dependencies (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          choco install -y meson ninja
+
+      - name: Configure build
+        run: meson setup builddir --buildtype=release -Denable_tests=false
+
+      - name: Compile project
+        run: meson compile -C builddir
+
+      - name: Package binary
+        shell: bash
+        run: |
+          mkdir -p release
+          BIN_NAME="ropsmith"
+          [[ "${{ matrix.os }}" == "Windows" ]] && BIN_NAME="ropsmith.exe"
+
+          cp builddir/$BIN_NAME release/
+
+          FILE_NAME="${{ matrix.artifact_name }}-${{ github.ref_name }}.${{ matrix.ext }}"
+          if [[ "${{ matrix.ext }}" == "tar.gz" ]]; then
+            tar -czvf $FILE_NAME -C release $BIN_NAME
+          else
+            powershell Compress-Archive -Path release\\$BIN_NAME -DestinationPath "$FILE_NAME"
+          fi
+
+          if [[ "${{ matrix.os }}" == "Windows" ]]; then
+            certutil -hashfile "$FILE_NAME" SHA256 > "${FILE_NAME}.sha256"
+          else
+            shasum -a 256 "$FILE_NAME" > "${FILE_NAME}.sha256"
+          fi
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          path: |
+            ${{ matrix.artifact_name }}-${{ github.ref_name }}.${{ matrix.ext }}
+            ${{ matrix.artifact_name }}-${{ github.ref_name }}.${{ matrix.ext }}.sha256
+
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v6
+        with:
+          path: ./artifacts
+
+      - name: List artifacts
+        run: ls -R ./artifacts
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ./artifacts/**/*.{tar.gz,zip,sha256}
+          tag_name: ${{ github.ref_name }}
+          name: ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.ACTIONS_TOKEN }}

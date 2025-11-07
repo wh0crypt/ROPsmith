@@ -36,4 +36,6 @@ exe_ropsmith = executable(
 )
 
 # --- Subdirectory for tests ---
-subdir('test')
+if get_option('enable_tests')
+  subdir('test')
+endif

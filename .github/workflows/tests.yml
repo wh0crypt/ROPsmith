@@ -2,7 +2,8 @@ name: tests
 
 on:
   push:
-    branches: [ main ]
+    branches:
+      - main
     paths:
       - '**.c'
       - '**.cc'
@@ -14,7 +15,8 @@ on:
       - 'include/**'
       - 'tests/**'
   pull_request:
-    branches: [ main ]
+    branches:
+      - main
     paths:
       - '**.c'
       - '**.cc'

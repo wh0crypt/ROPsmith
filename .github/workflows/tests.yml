@@ -18,7 +18,7 @@ jobs:
       - name: Install build dependencies
         run: |
           sudo apt update || true
-          sudo apt install -y gcc g++ pkg-config meson ninja-build libcriterion-dev || true
+          sudo apt install -y gcc g++ pkg-config meson ninja-build libcriterion-dev build-essential || true
 
       - name: Configure build
         run: meson setup builddir --buildtype=release -Denable_tests=true

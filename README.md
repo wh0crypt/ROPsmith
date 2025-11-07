@@ -14,7 +14,7 @@
 </div>
 
 <!-- LOC BADGE START -->
-![Lines of code](https://img.shields.io/badge/Lines_of_code-359-brightgreen)
+![Lines of code](https://img.shields.io/badge/Lines_of_code-3831-brightgreen)
 <!-- LOC BADGE END -->
 
 ## What is ROPsmith?

@@ -14,8 +14,8 @@
 #define _POSIX_C_SOURCE 200809L
 #include "finder.h"
 
-#include "macros.h"
 #include "io.h"
+#include "macros.h"
 
 #if defined(__APPLE__) || defined(_WIN32)
 #include "elf.h"
@@ -170,11 +170,11 @@ int find_ret_instructions(const char *path, int context_bytes) {
         return -1;
     }
 
-    printf("Scanning %s : .text offset=0x%lx size=0x%lx vaddr=0x%lx\n",
-           path,
-           text_offset,
-           text_size,
-           text_addr);
+    printf(
+        ".text offset=0x%lx size=0x%lx vaddr=0x%lx\n\n",
+        text_offset,
+        text_size,
+        text_addr);
 
     int ret_count = 0;
     for (size_t i = 0; i < text_size; ++i) {

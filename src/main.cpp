@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
 
     ropsmith::print_info();
 
-    std::printf("Scanning %s (context=%d)\n",
+    std::printf("Scanning %s (context=%d):\n",
                 options.binary_path.c_str(),
                 options.context_bytes);
     int result =

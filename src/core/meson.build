@@ -1,6 +1,5 @@
 core_sources = files(
   'ropsmith.cpp',
-  'rop.cpp',
-  'rop/finder.c'
+  'binary.cpp',
+  'rop/scanner.cpp'
 )
-core_incdir = include_directories('.')

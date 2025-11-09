@@ -12,13 +12,15 @@
 
 #include "program.h"
 
+#include "macros.h"
+
 #include <stdexcept>
 #include <string_view>
 #include <vector>
 
 namespace program {
 
-void parse_arguments(int argc, char **argv, program_options &options) {
+void parse_arguments(int argc, char **argv, ProgramOptions &options) {
     std::vector<std::string_view> args(argv + 1, argv + argc);
 
     for (auto it = args.begin(); it != args.end(); ++it) {
@@ -45,7 +47,7 @@ void parse_arguments(int argc, char **argv, program_options &options) {
         }
 
         if (options.binary_path.empty()) {
-            options.binary_path = std::string(*it);
+            options.binary_path = std::filesystem::path(*it);
         } else {
             options.error_msg  = "Unknown argument: " + std::string(*it);
             options.error_code = 1;

@@ -10,6 +10,7 @@
 ///
 //===----------------------------------------------------------------------===//
 
+#include "core/binary.h"
 #include "core/ropsmith.h"
 #include "program.h"
 
@@ -22,7 +23,7 @@
 /// \param argv Argument vector.
 /// \return Exit code.
 int main(int argc, char **argv) {
-    struct program::program_options options;
+    struct program::ProgramOptions options;
     program::parse_arguments(argc, argv, options);
 
     if (options.show_help) {
@@ -35,23 +36,27 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
-    if (options.error_code != EXIT_SUCCESS) {
-        std::fprintf(stderr, "Error: %s\n", options.error_msg.c_str());
-        return options.error_code;
-    }
+    // if (options.error_code != EXIT_SUCCESS) {
+    //     std::fprintf(stderr, "Error: %s\n", options.error_msg.c_str());
+    //     return options.error_code;
+    // }
 
     ropsmith::print_info();
 
     std::printf("Scanning %s (context=%d):\n",
-                options.binary_path.c_str(),
+                options.binary_path.string().c_str(),
                 options.context_bytes);
-    int result =
-        ropsmith::scan_file(options.binary_path.c_str(), options.context_bytes);
-    if (result < 0) {
-        std::fprintf(stderr, "Error: Scan failed with code %d\n", result);
+
+    file::Binary binary(options.binary_path);
+    std::size_t  result = 0;
+
+    try {
+        result = ropsmith::scan_file(binary, options.context_bytes);
+    } catch (const std::runtime_error &e) {
+        std::fprintf(stderr, "Error: %s\n", e.what());
         return EXIT_FAILURE;
     }
 
-    std::printf("Found %d RET instructions.\n", result);
+    std::printf("Found %zu RET instructions.\n", result);
     return EXIT_SUCCESS;
 }

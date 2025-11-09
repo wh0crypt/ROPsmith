@@ -16,10 +16,8 @@
 
 #include "io.h"
 
-#ifdef __cplusplus
 namespace utils {
 // Common utility functions can be declared here.
 } // namespace utils
-#endif // __cplusplus
 
 #endif // UTILS_UTILS_H

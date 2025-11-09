@@ -14,41 +14,103 @@
 #ifndef UTILS_IO_H
 #define UTILS_IO_H
 
-#ifdef __cplusplus
+#include "macros.h"
+
+#include <bit>
+#include <cstdint>
+#include <filesystem>
+#include <type_traits>
+#include <vector>
+
 namespace utils::io {
-extern "C" {
-#endif // __cplusplus
 
-#include <stdio.h>
-
-/// \brief Get the size of the given file in bytes.
-///
-/// \param file Pointer to the opened file.
-/// \return Returns the file size in bytes, or -1 on error.
-long get_file_size(FILE *file);
+struct FileCloser {
+    void operator()(std::FILE *fp) const noexcept;
+};
 
 /// \brief Reads the entire contents of a file into a buffer.
 ///
-/// Allocates memory for the file contents, which the caller must free.
-/// On success, sets \p size to the file size and returns the buffer.
-/// On failure, returns NULL.
-///
 /// \param path Path to the file to read.
-/// \param size Pointer to size variable to store the number of bytes read.
-/// \return Pointer to allocated buffer containing file contents, or NULL on
-/// error.
-unsigned char *read_file_to_buffer(const char *path, size_t *size);
+/// \param buf Reference to the buffer to read into.
+/// \throws std::runtime_error if the file cannot be read.
+void read_file_to_buffer(const std::filesystem::path &path,
+                         std::vector<std::byte>      &buf);
 
-/// \brief Prints a buffer in hexadecimal format.
+/// \brief Writes the contents of a buffer to a file.
 ///
-/// \param buf Pointer to the buffer to print.
-/// \param start Starting index in the buffer to print.
-/// \param end Ending index in the buffer to print.
-void print_bytes_hex(const unsigned char *buf, size_t start, size_t end);
+/// \param buf Reference to the buffer to write.
+/// \param path Path to the file to write to
+/// \throws std::runtime_error if the file cannot be written.
+void write_buffer_to_file(const std::vector<std::byte> &buf,
+                          const std::filesystem::path  &path);
 
-#ifdef __cplusplus
-} // extern "C"
+/// \brief Prints bytes in hexadecimal format.
+///
+/// \tparam T Type of the buffer (e.g., std::vector<std::byte>).
+/// \param buf Reference to the buffer containing bytes to print.
+/// \param start Starting index in the buffer.
+/// \param end Ending index in the buffer.
+template <typename T>
+void print_bytes_hex(const T &buf, std::size_t start, std::size_t end) {
+    for (std::size_t i = start; i < end; ++i) {
+        std::printf("%02X ", static_cast<unsigned int>(buf[i]));
+        if ((i + 1) % DEFAULT_BYTES_PER_LINE == 0) {
+            std::printf("\n");
+        }
+    }
+}
+
+/// \brief Opens a binary file and returns a file pointer.
+///
+/// \param path Path to the binary file.
+/// \return Pointer to the opened file.
+/// \throws std::runtime_error if the file cannot be opened.
+std::FILE *open_binary(const std::filesystem::path &path);
+
+/// \brief Swaps the byte order of an integral value.
+///
+/// \tparam T Integral type (e.g., uint16_t, uint32_t, uint64_t).
+/// \param value The value to swap.
+/// \return The value with swapped byte order.
+template <typename T> constexpr T swap_bytes(const T &value) noexcept {
+    static_assert(std::is_integral_v<T>,
+                  "swap_bytes requires an integral type");
+    static_assert(std::is_unsigned_v<T>,
+                  "swap_bytes requires an unsigned type");
+
+#if __cpp_lib_byteswap >= 202110L
+    return std::byteswap(value);
+#else
+    if constexpr (sizeof(T) == 1) {
+        return value;
+    }
+
+    if constexpr (sizeof(T) == 2) {
+        return static_cast<T>(((value & 0x00FFu) << 8) |
+                              ((value & 0xFF00u) >> 8));
+    }
+
+    if constexpr (sizeof(T) == 4) {
+        return static_cast<T>(
+            ((value & 0x000000FFu) << 24) | ((value & 0x0000FF00u) << 8) |
+            ((value & 0x00FF0000u) >> 8) | ((value & 0xFF000000u) >> 24));
+    }
+
+    if constexpr (sizeof(T) == 8) {
+        return static_cast<T>(((value & 0x00000000000000FFull) << 56) |
+                              ((value & 0x000000000000FF00ull) << 40) |
+                              ((value & 0x0000000000FF0000ull) << 24) |
+                              ((value & 0x00000000FF000000ull) << 8) |
+                              ((value & 0x000000FF00000000ull) >> 8) |
+                              ((value & 0x0000FF0000000000ull) >> 24) |
+                              ((value & 0x00FF000000000000ull) >> 40) |
+                              ((value & 0xFF00000000000000ull) >> 56));
+    }
+
+    static_assert(sizeof(T) <= 8, "Unsupported integer size");
+#endif
+}
+
 } // namespace utils::io
-#endif // __cplusplus
 
 #endif // UTILS_IO_H

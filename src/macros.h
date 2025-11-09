@@ -13,10 +13,13 @@
 #ifndef MACROS_H
 #define MACROS_H
 
+#include <cstddef>
+
 // Default values
-#define DEFAULT_CONTEXT_BYTES 16
+constexpr int DEFAULT_CONTEXT_BYTES  = 16;
+constexpr int DEFAULT_BYTES_PER_LINE = 16;
 
 // Instruction opcodes
-#define RET_OPCODE 0xC3
+constexpr std::byte RET_OPCODE = std::byte{0xC3};
 
 #endif // MACROS_H

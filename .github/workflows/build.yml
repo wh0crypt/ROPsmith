@@ -4,14 +4,12 @@ on:
   push:
     branches:
       - main
-      - dev
     paths:
       - 'meson.build'
       - 'src/**'
   pull_request:
     branches:
       - main
-      - dev
     paths:
       - 'meson.build'
       - 'src/**'
@@ -39,12 +37,6 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install meson ninja
-
-      - name: Install dependencies (Linux)
-        if: runner.os == 'ubuntu-latest'
-        run: |
-          sudo apt update || true
-          sudo apt install -y gcc g++ pkg-config || true
 
       - name: Configure build
         run: meson setup builddir --buildtype=release -Denable-tests=false

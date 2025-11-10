@@ -23,15 +23,13 @@ namespace file {
 
 typedef enum BinaryType { UnknownType = 0, ELF, PE, MachO } BinaryType;
 
-void print_binary_type(const BinaryType &type);
+typedef enum Bitness { UnknownBitness = 0, x32, x64 } Bitness;
 
 typedef enum Endianness {
     UnknownEndian = 0,
     LittleEndian,
     BigEndian
 } Endianness;
-
-void print_endianness(const Endianness &endianness);
 
 typedef enum Architecture {
     UnknownArch = 0,
@@ -43,7 +41,10 @@ typedef enum Architecture {
     MIPS
 } Architecture;
 
-void print_architecture(const Architecture &arch);
+std::string binary_type_to_string(const BinaryType &type);
+std::string bitness_to_string(const Bitness &bitness);
+std::string endianness_to_string(const Endianness &endianness);
+std::string arch_to_string(const Architecture &arch);
 
 class Binary {
   public:
@@ -87,6 +88,11 @@ class Binary {
     /// \return The type of the binary file.
     const BinaryType &type() const;
 
+    /// \brief Get the bitness of the binary file.
+    ///
+    /// \return The bitness of the binary file.
+    const Bitness &bitness() const;
+
     /// \brief Get the endianness of the binary file.
     ///
     /// \return The endianness of the binary file.
@@ -107,23 +113,21 @@ class Binary {
     std::filesystem::path  path_;
     std::vector<std::byte> data_;
     BinaryType             type_;
+    Bitness                bitness_;
     Endianness             endianness_;
     Architecture           architecture_;
 
-    /// \brief Get the type of the binary file.
-    ///
-    /// \return The type of the binary file.
-    BinaryType find_type();
+    /// \brief Find the type of the binary file.
+    void find_type();
+
+    /// \brief Find the bitness of the binary file.
+    void find_bitness();
 
     /// \brief Find the endianness of the binary file.
-    ///
-    /// \return The endianness of the binary file.
-    Endianness find_endianness();
+    void find_endianness();
 
     /// \brief Find the architecture of the binary file.
-    ///
-    /// \return The architecture of the binary file.
-    Architecture find_architecture();
+    void find_architecture();
 
     /// \brief Read bytes from the binary data into a variable.
     ///
@@ -135,6 +139,11 @@ class Binary {
     template <typename T>
     bool read_bytes(const std::vector<std::byte> &buf, size_t offset, T &out);
 };
+
+/// \brief Print information about the binary file.
+///
+/// \param binary The binary file to print information about.
+void print_binary_info(const Binary &binary);
 
 template <typename T>
 bool Binary::read_bytes(const std::vector<std::byte> &buf,

@@ -28,76 +28,87 @@
 
 namespace file {
 
-void print_binary_type(const BinaryType &type) {
+std::string binary_type_to_string(const BinaryType &type) {
     switch (type) {
         case BinaryType::UnknownType:
-            std::printf("Unknown");
-            break;
+            return "N/A";
         case BinaryType::ELF:
-            std::printf("ELF");
-            break;
+            return "ELF";
         case BinaryType::PE:
-            std::printf("PE");
-            break;
+            return "PE";
         case BinaryType::MachO:
-            std::printf("Mach-O");
-            break;
+            return "Mach-O";
     }
+
+    return "N/A";
 }
 
-void print_endianness(const Endianness &endianness) {
+std::string bitness_to_string(const Bitness &bitness) {
+    switch (bitness) {
+        case Bitness::UnknownBitness:
+            return "N/A";
+        case Bitness::x32:
+            return "32-bit";
+        case Bitness::x64:
+            return "64-bit";
+    }
+
+    return "N/A";
+}
+
+std::string endianness_to_string(const Endianness &endianness) {
     switch (endianness) {
         case Endianness::UnknownEndian:
-            std::printf("Unknown");
-            break;
+            return "N/A";
         case Endianness::LittleEndian:
-            std::printf("Little Endian");
-            break;
+            return "LSB";
         case Endianness::BigEndian:
-            std::printf("Big Endian");
-            break;
+            return "MSB";
     }
+
+    return "N/A";
 }
 
-void print_architecture(const Architecture &arch) {
+std::string arch_to_string(const Architecture &arch) {
     switch (arch) {
         case Architecture::UnknownArch:
-            std::printf("Unknown");
-            break;
+            return "N/A";
         case Architecture::x86:
-            std::printf("x86");
-            break;
+            return "x86";
         case Architecture::AMD64:
-            std::printf("AMD64");
-            break;
+            return "x86_64";
         case Architecture::ARM:
-            std::printf("ARM");
-            break;
+            return "arm";
         case Architecture::AArch64:
-            std::printf("AArch64");
-            break;
+            return "aarch64";
         case Architecture::RISCV:
-            std::printf("RISC-V");
-            break;
+            return "riscv";
         case Architecture::MIPS:
-            std::printf("MIPS");
-            break;
+            return "mips";
     }
+
+    return "N/A";
 }
 
 Binary::Binary() {
     this->path_ = std::filesystem::path();
     this->data_.clear();
     this->type_         = BinaryType::UnknownType;
+    this->bitness_      = Bitness::UnknownBitness;
     this->endianness_   = Endianness::UnknownEndian;
     this->architecture_ = Architecture::UnknownArch;
 }
 
 Binary::Binary(const std::filesystem::path &path) : path_(path) {
-    this->load(path);
-    this->type_         = this->find_type();
-    this->endianness_   = this->find_endianness();
-    this->architecture_ = this->find_architecture();
+    try {
+        this->load(path);
+        this->find_type();
+        this->find_bitness();
+        this->find_endianness();
+        this->find_architecture();
+    } catch (const std::runtime_error &e) {
+        throw e;
+    }
 }
 
 void Binary::load(const std::filesystem::path &path) {
@@ -123,12 +134,14 @@ const std::byte             *Binary::data() const { return this->data_.data(); }
 std::size_t                  Binary::size() const { return this->data_.size(); }
 const std::vector<std::byte> &Binary::vector() const { return this->data_; }
 const BinaryType             &Binary::type() const { return this->type_; }
+const Bitness                &Binary::bitness() const { return this->bitness_; }
 const Endianness   &Binary::endianness() const { return this->endianness_; }
 const Architecture &Binary::architecture() const { return this->architecture_; }
 
-BinaryType Binary::find_type() {
+void Binary::find_type() {
     if (this->size() < 4) {
-        return BinaryType::UnknownType;
+        this->type_ = BinaryType::UnknownType;
+        return;
     }
 
     // ELF: 0x7F 'E' 'L' 'F'
@@ -137,13 +150,15 @@ BinaryType Binary::find_type() {
         this->vector()[1] == std::byte{'E'} &&
         this->vector()[2] == std::byte{'L'} &&
         this->vector()[3] == std::byte{'F'}) {
-        return BinaryType::ELF;
+        this->type_ = BinaryType::ELF;
+        return;
     }
 
     // PE: bytes 0..1 = 'M' 'Z' (0x4D 0x5A)
     if (this->vector()[0] == std::byte{'M'} &&
         this->vector()[1] == std::byte{'Z'}) {
-        return BinaryType::PE;
+        this->type_ = BinaryType::PE;
+        return;
     }
 
     // Mach-O: bytes 0..3 = magic
@@ -153,11 +168,13 @@ BinaryType Binary::find_type() {
     // 0xCFFAEDFE  -> 64-bit big endian
     std::uint32_t magic = 0;
     if (!read_bytes(this->vector(), 0, magic)) {
-        return BinaryType::UnknownType;
+        this->type_ = BinaryType::UnknownType;
+        return;
     }
 
     if (magic == 0 || magic == 0xFFFFFFFF) {
-        return BinaryType::UnknownType;
+        this->type_ = BinaryType::UnknownType;
+        return;
     }
 
     switch (magic) {
@@ -165,33 +182,121 @@ BinaryType Binary::find_type() {
         case 0xFEEDFACF:
         case 0xCEFAEDFE:
         case 0xCFFAEDFE:
-            return BinaryType::MachO;
+            this->type_ = BinaryType::MachO;
+            return;
     }
 
-    return BinaryType::UnknownType;
+    this->type_ = BinaryType::UnknownType;
 }
 
-Endianness Binary::find_endianness() {
+void Binary::find_bitness() {
+    if (this->type() == BinaryType::ELF) {
+        std::byte ei_class = this->vector()[4];
+
+        if (this->size() > 5) {
+            if (ei_class == std::byte{1}) {
+                this->bitness_ = Bitness::x32;
+                return;
+            }
+
+            if (ei_class == std::byte{2}) {
+                this->bitness_ = Bitness::x64;
+                return;
+            }
+        }
+
+        this->bitness_ = Bitness::UnknownBitness;
+        return;
+    }
+
+    if (this->type() == BinaryType::PE) {
+        if (this->size() < 0x40) {
+            this->bitness_ = Bitness::UnknownBitness;
+            return;
+        }
+
+        // PE header offset is at 0x3C (4 bytes)
+        std::uint32_t pe_offset = 0;
+        if (!read_bytes(this->vector(), 0x3C, pe_offset)) {
+            this->bitness_ = Bitness::UnknownBitness;
+            return;
+        }
+
+        // 4 bytes (offset) + 2 bytes (machine)
+        if (pe_offset > this->size() - 6) {
+            this->bitness_ = Bitness::UnknownBitness;
+            return;
+        }
+
+        // Magic field is at offset pe_offset + 4 (2 bytes)
+        uint16_t magic = 0;
+        if (!read_bytes(this->vector(), pe_offset + 0x18, magic)) {
+            this->bitness_ = Bitness::UnknownBitness;
+            return;
+        }
+
+        switch (magic) {
+            case 0x10b:
+                this->bitness_ = Bitness::x32;
+                return;
+            case 0x20b:
+                this->bitness_ = Bitness::x64;
+                return;
+            default:
+                this->bitness_ = Bitness::UnknownBitness;
+                return;
+        }
+    }
+
+    if (this->type() == BinaryType::MachO) {
+        uint32_t magic = 0;
+        if (!read_bytes(this->vector(), 0, magic)) {
+            this->bitness_ = Bitness::UnknownBitness;
+            return;
+        }
+
+        switch (magic) {
+            case 0xFEEDFACE:
+            case 0xCEFAEDFE:
+                this->bitness_ = Bitness::x32;
+                return;
+            case 0xFEEDFACF:
+            case 0xCFFAEDFE:
+                this->bitness_ = Bitness::x64;
+                return;
+            default:
+                this->bitness_ = Bitness::UnknownBitness;
+                return;
+        }
+    }
+}
+
+void Binary::find_endianness() {
     if (this->size() < 8) {
-        return Endianness::UnknownEndian;
+        this->endianness_ = Endianness::UnknownEndian;
+        return;
     }
 
     if (this->type() == BinaryType::ELF) {
         std::byte ei_data = this->vector()[5];
 
         if (ei_data == std::byte{1}) {
-            return Endianness::LittleEndian;
+            this->endianness_ = Endianness::LittleEndian;
+            return;
         }
 
         if (ei_data == std::byte{2}) {
-            return Endianness::BigEndian;
+            this->endianness_ = Endianness::BigEndian;
+            return;
         }
 
-        return Endianness::UnknownEndian;
+        this->endianness_ = Endianness::UnknownEndian;
+        return;
     }
 
     if (this->type() == BinaryType::PE) {
-        return Endianness::LittleEndian;
+        this->endianness_ = Endianness::LittleEndian;
+        return;
     }
 
     if (this->type() == BinaryType::MachO) {
@@ -202,42 +307,50 @@ Endianness Binary::find_endianness() {
         // 0xCFFAEDFE  -> 64-bit big endian
         std::uint32_t magic = 0;
         if (!read_bytes(this->vector(), 0, magic)) {
-            return Endianness::UnknownEndian;
+            this->endianness_ = Endianness::UnknownEndian;
+            return;
         }
 
         if (magic == 0 || magic == 0xFFFFFFFF) {
-            return Endianness::UnknownEndian;
+            this->endianness_ = Endianness::UnknownEndian;
+            return;
         }
 
         switch (magic) {
             case 0xFEEDFACE:
             case 0xFEEDFACF:
-                return Endianness::LittleEndian;
+                this->endianness_ = Endianness::LittleEndian;
+                return;
             case 0xCEFAEDFE:
             case 0xCFFAEDFE:
-                return Endianness::BigEndian;
+                this->endianness_ = Endianness::BigEndian;
+                return;
             default:
-                return Endianness::UnknownEndian;
+                this->endianness_ = Endianness::UnknownEndian;
+                return;
         }
     }
 
-    return Endianness::UnknownEndian;
+    this->endianness_ = Endianness::UnknownEndian;
 }
 
-Architecture Binary::find_architecture() {
+void Binary::find_architecture() {
     if (this->size() < 4 || this->type() == BinaryType::UnknownType) {
-        return Architecture::UnknownArch;
+        this->architecture_ = Architecture::UnknownArch;
+        return;
     }
 
     if (this->type() == BinaryType::ELF) {
         if (this->size() < 0x14) {
-            return Architecture::UnknownArch;
+            this->architecture_ = Architecture::UnknownArch;
+            return;
         }
 
         // e_machine is at offset 0x12 (2 bytes) in ELF header
         uint16_t e_machine = 0;
         if (!read_bytes(this->vector(), 0x12, e_machine)) {
-            return Architecture::UnknownArch;
+            this->architecture_ = Architecture::UnknownArch;
+            return;
         }
 
         // Endianness handling
@@ -247,75 +360,95 @@ Architecture Binary::find_architecture() {
 
         switch (e_machine) {
             case EM_386:
-                return Architecture::x86;
+                this->architecture_ = Architecture::x86;
+                return;
             case EM_X86_64:
-                return Architecture::AMD64;
+                this->architecture_ = Architecture::AMD64;
+                return;
             case EM_ARM:
-                return Architecture::ARM;
+                this->architecture_ = Architecture::ARM;
+                return;
             case EM_AARCH64:
-                return Architecture::AArch64;
+                this->architecture_ = Architecture::AArch64;
+                return;
             case EM_RISCV:
-                return Architecture::RISCV;
+                this->architecture_ = Architecture::RISCV;
+                return;
             case EM_MIPS:
-                return Architecture::MIPS;
+                this->architecture_ = Architecture::MIPS;
+                return;
             default:
-                return Architecture::UnknownArch;
+                this->architecture_ = Architecture::UnknownArch;
+                return;
         }
     }
 
     if (this->type() == BinaryType::PE) {
         if (this->size() < 0x40) {
-            return Architecture::UnknownArch;
+            this->architecture_ = Architecture::UnknownArch;
+            return;
         }
 
         // PE header offset is at 0x3C (4 bytes)
         std::uint32_t pe_offset = 0;
         if (!read_bytes(this->vector(), 0x3C, pe_offset)) {
-            return Architecture::UnknownArch;
+            this->architecture_ = Architecture::UnknownArch;
+            return;
         }
 
         // 4 bytes (offset) + 2 bytes (machine)
         if (pe_offset > this->size() - 6) {
-            return Architecture::UnknownArch;
+            this->architecture_ = Architecture::UnknownArch;
+            return;
         }
 
         // Machine field is at offset pe_offset + 4 (2 bytes)
         uint16_t machine = 0;
         if (!read_bytes(this->vector(), pe_offset + 4, machine)) {
-            return Architecture::UnknownArch;
+            this->architecture_ = Architecture::UnknownArch;
+            return;
         }
 
         switch (machine) {
             case IMAGE_FILE_MACHINE_UNKNOWN:
-                return Architecture::UnknownArch;
+                this->architecture_ = Architecture::UnknownArch;
+                return;
             case IMAGE_FILE_MACHINE_I386:
-                return Architecture::x86;
+                this->architecture_ = Architecture::x86;
+                return;
             case IMAGE_FILE_MACHINE_AMD64:
-                return Architecture::AMD64;
+                this->architecture_ = Architecture::AMD64;
+                return;
             case IMAGE_FILE_MACHINE_ARM:
             case IMAGE_FILE_MACHINE_THUMB:
             case IMAGE_FILE_MACHINE_ARMNT:
-                return Architecture::ARM;
+                this->architecture_ = Architecture::ARM;
+                return;
             case IMAGE_FILE_MACHINE_ARM64:
-                return Architecture::AArch64;
+                this->architecture_ = Architecture::AArch64;
+                return;
             case IMAGE_FILE_MACHINE_MIPS16:
             case IMAGE_FILE_MACHINE_MIPSFPU:
             case IMAGE_FILE_MACHINE_MIPSFPU16:
-                return Architecture::MIPS;
+                this->architecture_ = Architecture::MIPS;
+                return;
             default:
-                return Architecture::UnknownArch;
+                this->architecture_ = Architecture::UnknownArch;
+                return;
         }
     }
 
     if (this->type() == BinaryType::MachO) {
         // magic (4) + cputype (4) + cpusubtype (4)
         if (this->size() < 12) {
-            return Architecture::UnknownArch;
+            this->architecture_ = Architecture::UnknownArch;
+            return;
         }
 
         std::uint32_t magic = 0;
         if (!read_bytes(this->vector(), 0, magic)) {
-            return Architecture::UnknownArch;
+            this->architecture_ = Architecture::UnknownArch;
+            return;
         }
 
         // Fat Mach-O
@@ -325,7 +458,8 @@ Architecture Binary::find_architecture() {
             std::uint32_t nfat_arch = 0;
 
             if (!read_bytes(this->vector(), 4, nfat_arch)) {
-                return Architecture::UnknownArch;
+                this->architecture_ = Architecture::UnknownArch;
+                return;
             }
 
             if (!is_big_endian) {
@@ -349,13 +483,17 @@ Architecture Binary::find_architecture() {
 
                 switch (cputype) {
                     case 7: // CPU_TYPE_X86
-                        return Architecture::x86;
+                        this->architecture_ = Architecture::x86;
+                        return;
                     case 0x01000007: // CPU_TYPE_X86_64
-                        return Architecture::AMD64;
+                        this->architecture_ = Architecture::AMD64;
+                        return;
                     case 12: // CPU_TYPE_ARM
-                        return Architecture::ARM;
+                        this->architecture_ = Architecture::ARM;
+                        return;
                     case 0x0100000C: // CPU_TYPE_ARM64
-                        return Architecture::AArch64;
+                        this->architecture_ = Architecture::AArch64;
+                        return;
                     default:
                         break;
                 }
@@ -363,17 +501,20 @@ Architecture Binary::find_architecture() {
                 arch_offset += 20;
             }
 
-            return Architecture::UnknownArch;
+            this->architecture_ = Architecture::UnknownArch;
+            return;
         }
 
         // Normal Mach-O
         std::uint32_t cputype = 0;
         if (!read_bytes(this->vector(), 4, cputype)) {
-            return Architecture::UnknownArch;
+            this->architecture_ = Architecture::UnknownArch;
+            return;
         }
 
         if (magic == 0 || magic == 0xFFFFFFFF) {
-            return Architecture::UnknownArch;
+            this->architecture_ = Architecture::UnknownArch;
+            return;
         }
 
         if (this->endianness() == Endianness::BigEndian) {
@@ -382,23 +523,36 @@ Architecture Binary::find_architecture() {
 
         switch (cputype) {
             case 7: // CPU_TYPE_X86
-                return Architecture::x86;
+                this->architecture_ = Architecture::x86;
+                return;
             case 0x01000007: // CPU_TYPE_X86_64
-                return Architecture::AMD64;
+                this->architecture_ = Architecture::AMD64;
+                return;
             case 12: // CPU_TYPE_ARM
-                return Architecture::ARM;
+                this->architecture_ = Architecture::ARM;
+                return;
             case 0x0100000C: // CPU_TYPE_ARM64
-                return Architecture::AArch64;
+                this->architecture_ = Architecture::AArch64;
+                return;
             default:
-                return Architecture::UnknownArch;
+                this->architecture_ = Architecture::UnknownArch;
+                return;
         }
     }
 
-    return Architecture::UnknownArch;
+    this->architecture_ = Architecture::UnknownArch;
 }
 
 const std::byte &Binary::operator[](std::size_t index) const {
     return this->data_.at(index);
+}
+
+void print_binary_info(const Binary &binary) {
+    std::printf("Binary info: %s %s %s, %s\n",
+                file::binary_type_to_string(binary.type()).c_str(),
+                file::bitness_to_string(binary.bitness()).c_str(),
+                file::endianness_to_string(binary.endianness()).c_str(),
+                file::arch_to_string(binary.architecture()).c_str());
 }
 
 } // namespace file

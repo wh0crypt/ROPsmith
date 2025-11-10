@@ -36,24 +36,19 @@ int main(int argc, char **argv) {
         return EXIT_FAILURE;
     }
 
-    // if (options.error_code != EXIT_SUCCESS) {
-    //     std::fprintf(stderr, "Error: %s\n", options.error_msg.c_str());
-    //     return options.error_code;
-    // }
-
     ropsmith::print_info();
-
     std::printf("Scanning %s (context=%d):\n",
                 options.binary_path.string().c_str(),
                 options.context_bytes);
 
-    file::Binary binary(options.binary_path);
-    std::size_t  result = 0;
+    std::size_t result = 0;
 
     try {
+        file::Binary binary(options.binary_path);
+        file::print_binary_info(binary);
         result = ropsmith::scan_file(binary, options.context_bytes);
     } catch (const std::runtime_error &e) {
-        std::fprintf(stderr, "Error: %s\n", e.what());
+        std::fprintf(stderr, "%s\n", e.what());
         return EXIT_FAILURE;
     }
 

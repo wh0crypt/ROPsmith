@@ -24,6 +24,9 @@
 
 namespace utils::io {
 
+/// \brief Closes a FILE pointer.
+///
+/// \param fp Pointer to the FILE to close.
 struct FileCloser {
     void operator()(std::FILE *fp) const noexcept;
 };
@@ -39,10 +42,18 @@ void read_file_to_buffer(const std::filesystem::path &path,
 /// \brief Writes the contents of a buffer to a file.
 ///
 /// \param buf Reference to the buffer to write.
-/// \param path Path to the file to write to
+/// \param path Path to the file to write to.
+/// \param expected_crc Optional expected CRC32 checksum for verification.
 /// \throws std::runtime_error if the file cannot be written.
 void write_buffer_to_file(const std::vector<std::byte> &buf,
-                          const std::filesystem::path  &path);
+                          const std::filesystem::path  &path,
+                          std::uint32_t                 expected_crc = 0);
+
+/// \brief Computes the CRC32 checksum of the given data.
+///
+/// \param buf Reference to the buffer containing the data.
+/// \return The CRC32 checksum.
+std::uint32_t compute_crc32(const std::vector<std::byte> &buf);
 
 /// \brief Prints bytes in hexadecimal format.
 ///

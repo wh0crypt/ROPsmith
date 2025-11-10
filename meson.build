@@ -22,11 +22,19 @@ subdir(utils_dir)
 sources = core_sources + utils_sources
 incdir = [include_directories('src')]
 
+zlib_dep = dependency('zlib', required : false)
+if not zlib_dep.found()
+  warning('zlib not found, trying to use system library manually')
+  cxx = meson.get_compiler('cpp')
+  zlib_dep = cxx.find_library('z', required : true)
+endif
+
 # --- Library ---
 lib_ropsmith = static_library(
   'ropsmith',
   sources,
-  include_directories : incdir
+  include_directories : incdir,
+  dependencies : [zlib_dep]
 )
 
 # --- Main executable ---

@@ -39,6 +39,25 @@ jobs:
           python -m pip install --upgrade pip
           pip install meson ninja
 
+      - name: Install zlib
+        if: runner.os == 'Linux' || runner.os == 'macOS'
+        run: |
+          if [ "${{ runner.os }}" = "Linux" ]; then
+            sudo apt-get update
+            sudo apt-get install -y zlib1g-dev
+          else
+            brew install zlib
+          fi
+
+      - name: Install zlib (Windows)
+        if: runner.os == 'Windows'
+        run: |
+          choco install vcpkg -y
+          vcpkg install zlib:x64-windows
+          echo "VCPKG_ROOT=C:\\ProgramData\\chocolatey\\lib\\vcpkg\\tools\\vcpkg*" >> $GITHUB_ENV
+          echo "CMAKE_TOOLCHAIN_FILE=${{ env.VCPKG_ROOT }}\\scripts\\buildsystems\\vcpkg.cmake" >> $GITHUB_ENV
+          refreshenv
+
       - name: Configure build
         run: meson setup builddir --buildtype=release -Denable-tests=false
 

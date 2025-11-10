@@ -13,7 +13,7 @@
 </pre>
 </div>
 
-![Lines of code](https://img.shields.io/badge/lines_of_code-362-brightgreen)
+![Lines of code](https://img.shields.io/badge/lines_of_code-743-brightgreen)
 [![build-dev](https://github.com/wh0crypt/ROPsmith/actions/workflows/build.yml/badge.svg)](https://github.com/wh0crypt/ROPsmith/actions/workflows/build.yml)
 [![build-release](https://github.com/wh0crypt/ROPsmith/actions/workflows/release.yml/badge.svg)](https://github.com/wh0crypt/ROPsmith/actions/workflows/release.yml)
 [![tests](https://github.com/wh0crypt/ROPsmith/actions/workflows/tests.yml/badge.svg)](https://github.com/wh0crypt/ROPsmith/actions/workflows/tests.yml)

@@ -23,11 +23,15 @@ namespace file {
 
 typedef enum BinaryType { UnknownType = 0, ELF, PE, MachO } BinaryType;
 
+void print_binary_type(const BinaryType &type);
+
 typedef enum Endianness {
     UnknownEndian = 0,
     LittleEndian,
     BigEndian
 } Endianness;
+
+void print_endianness(const Endianness &endianness);
 
 typedef enum Architecture {
     UnknownArch = 0,
@@ -38,6 +42,8 @@ typedef enum Architecture {
     RISCV,
     MIPS
 } Architecture;
+
+void print_architecture(const Architecture &arch);
 
 class Binary {
   public:

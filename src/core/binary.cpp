@@ -28,6 +28,63 @@
 
 namespace file {
 
+void print_binary_type(const BinaryType &type) {
+    switch (type) {
+        case BinaryType::UnknownType:
+            std::printf("Unknown");
+            break;
+        case BinaryType::ELF:
+            std::printf("ELF");
+            break;
+        case BinaryType::PE:
+            std::printf("PE");
+            break;
+        case BinaryType::MachO:
+            std::printf("Mach-O");
+            break;
+    }
+}
+
+void print_endianness(const Endianness &endianness) {
+    switch (endianness) {
+        case Endianness::UnknownEndian:
+            std::printf("Unknown");
+            break;
+        case Endianness::LittleEndian:
+            std::printf("Little Endian");
+            break;
+        case Endianness::BigEndian:
+            std::printf("Big Endian");
+            break;
+    }
+}
+
+void print_architecture(const Architecture &arch) {
+    switch (arch) {
+        case Architecture::UnknownArch:
+            std::printf("Unknown");
+            break;
+        case Architecture::x86:
+            std::printf("x86");
+            break;
+        case Architecture::AMD64:
+            std::printf("AMD64");
+            break;
+        case Architecture::ARM:
+            std::printf("ARM");
+            break;
+        case Architecture::AArch64:
+            std::printf("AArch64");
+            break;
+        case Architecture::RISCV:
+            std::printf("RISC-V");
+            break;
+        case Architecture::MIPS:
+            std::printf("MIPS");
+            break;
+    }
+}
+
 Binary::Binary() {
     this->path_ = std::filesystem::path();
     this->data_.clear();
